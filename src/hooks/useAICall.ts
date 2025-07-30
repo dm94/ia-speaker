@@ -14,6 +14,7 @@ interface UseAICallProps {
 export const useAICall = ({ config }: UseAICallProps) => {
   const [callState, setCallState] = useState<CallState>('idle');
   const [isRecording, setIsRecording] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,6 +24,8 @@ export const useAICall = ({ config }: UseAICallProps) => {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const speechDetectedRef = useRef(false);
+  const consecutiveSilenceFramesRef = useRef(0);
   
   // Servicios
   const transcriptionService = useRef(new SpeechTranscriptionService());
@@ -71,41 +74,61 @@ export const useAICall = ({ config }: UseAICallProps) => {
     }
   }, []);
 
-  // Monitorear nivel de audio y detectar silencio
-  const monitorAudioLevel = useCallback(() => {
-    if (!analyserRef.current) return;
-    
-    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-    analyserRef.current.getByteFrequencyData(dataArray);
-    
-    // Calcular nivel promedio de audio
-    const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-    setAudioLevel(average);
-    
-    // Detectar silencio
-    if (average < config.silenceThreshold) {
-      if (!silenceTimerRef.current) {
-        silenceTimerRef.current = setTimeout(() => {
-          if (callState === 'listening') {
-            processRecording();
-          }
-        }, config.silenceTimeout);
-      }
-    } else {
-      // Cancelar timer de silencio si hay audio
-      if (silenceTimerRef.current) {
-        clearTimeout(silenceTimerRef.current);
-        silenceTimerRef.current = null;
-      }
+
+
+  // Iniciar nueva grabación después de respuesta
+  const startNewRecording = useCallback(() => {
+    if (recorderRef.current && mediaStreamRef.current && !isMuted) {
+      recorderRef.current = new RecordRTC(mediaStreamRef.current, {
+        type: 'audio',
+        mimeType: 'audio/wav',
+        recorderType: RecordRTC.StereoAudioRecorder,
+        numberOfAudioChannels: 1,
+        desiredSampRate: 16000
+      });
+      
+      recorderRef.current.startRecording();
+      setIsRecording(true);
+      // Reset detección de habla para nueva grabación
+      speechDetectedRef.current = false;
+      consecutiveSilenceFramesRef.current = 0;
     }
+  }, [isMuted]);
+
+  // Sintetizar y reproducir respuesta de voz
+  const synthesizeAndPlaySpeech = useCallback(async (text: string) => {
+    setCallState('speaking');
     
-    animationFrameRef.current = requestAnimationFrame(monitorAudioLevel);
-  }, [callState, config.silenceThreshold, config.silenceTimeout]);
+    try {
+      // Intentar usar sesame/csm-1b primero
+      try {
+        const audioBuffer = await synthesisService.current.synthesizeSpeech(text);
+        await synthesisService.current.playAudioBuffer(audioBuffer);
+      } catch {
+        // Fallback a Web Speech API
+        await synthesisService.current.synthesizeSpeechFallback(text);
+      }
+      
+      // Continuar conversación
+      setCallState('listening');
+      startNewRecording();
+      
+    } catch (err) {
+      setError('Error al sintetizar voz: ' + (err as Error).message);
+      setCallState('listening');
+      startNewRecording();
+    }
+  }, [startNewRecording]);
 
   // Procesar grabación cuando se detecta silencio
   const processRecording = useCallback(async () => {
-    if (!recorderRef.current || callState !== 'listening') return;
+    console.log('🎤 Iniciando procesamiento de grabación...', { callState, hasRecorder: !!recorderRef.current, isMuted });
+    if (!recorderRef.current || callState !== 'listening' || isMuted) {
+      console.log('❌ No se puede procesar: sin grabador, estado incorrecto o micrófono muteado', { callState, hasRecorder: !!recorderRef.current, isMuted });
+      return;
+    }
     
+    console.log('⚙️ Cambiando estado a processing...');
     setCallState('processing');
     
     try {
@@ -146,48 +169,64 @@ export const useAICall = ({ config }: UseAICallProps) => {
       setCallState('listening');
       startNewRecording();
     }
-  }, [callState]);
+  }, [callState, synthesizeAndPlaySpeech, startNewRecording]);
 
-  // Sintetizar y reproducir respuesta de voz
-  const synthesizeAndPlaySpeech = useCallback(async (text: string) => {
-    setCallState('speaking');
+  // Monitorear nivel de audio y detectar silencio mejorado
+  const monitorAudioLevel = useCallback(() => {
+    if (!analyserRef.current || isMuted) {
+      setAudioLevel(0);
+      animationFrameRef.current = requestAnimationFrame(monitorAudioLevel);
+      return;
+    }
     
-    try {
-      // Intentar usar sesame/csm-1b primero
-      try {
-        const audioBuffer = await synthesisService.current.synthesizeSpeech(text);
-        await synthesisService.current.playAudioBuffer(audioBuffer);
-      } catch {
-        // Fallback a Web Speech API
-        await synthesisService.current.synthesizeSpeechFallback(text);
+    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+    analyserRef.current.getByteFrequencyData(dataArray);
+    
+    // Calcular nivel promedio de audio
+    const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+    setAudioLevel(average);
+    
+    // Mejorar detección de habla vs ruido de fondo
+    const speechThreshold = config.silenceThreshold + 5; // Umbral más alto para detectar habla real
+    const isSpeaking = average > speechThreshold;
+    
+    if (isSpeaking) {
+      speechDetectedRef.current = true;
+      consecutiveSilenceFramesRef.current = 0;
+      
+      // Cancelar timer de silencio si hay habla
+      if (silenceTimerRef.current) {
+        console.log('🔊 Habla detectada, cancelando timer de silencio');
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
       }
-      
-      // Continuar conversación
-      setCallState('listening');
-      startNewRecording();
-      
-    } catch (err) {
-      setError('Error al sintetizar voz: ' + (err as Error).message);
-      setCallState('listening');
-      startNewRecording();
+    } else {
+      // Solo procesar si ya se detectó habla previamente
+      if (speechDetectedRef.current) {
+        consecutiveSilenceFramesRef.current++;
+        
+        // Requerir múltiples frames consecutivos de silencio para mayor precisión
+        const requiredSilenceFrames = Math.floor(config.silenceTimeout / 50); // ~50ms por frame
+        
+        if (consecutiveSilenceFramesRef.current >= requiredSilenceFrames && !silenceTimerRef.current) {
+          console.log('🔇 Silencio prolongado detectado después de habla, procesando...', { 
+            average, 
+            threshold: config.silenceThreshold, 
+            frames: consecutiveSilenceFramesRef.current 
+          });
+          
+          if (callState === 'listening') {
+            // Reset para próxima detección
+            speechDetectedRef.current = false;
+            consecutiveSilenceFramesRef.current = 0;
+            processRecording();
+          }
+        }
+      }
     }
-  }, []);
-
-  // Iniciar nueva grabación después de respuesta
-  const startNewRecording = useCallback(() => {
-    if (recorderRef.current && mediaStreamRef.current) {
-      recorderRef.current = new RecordRTC(mediaStreamRef.current, {
-        type: 'audio',
-        mimeType: 'audio/wav',
-        recorderType: RecordRTC.StereoAudioRecorder,
-        numberOfAudioChannels: 1,
-        desiredSampRate: 16000
-      });
-      
-      recorderRef.current.startRecording();
-      setIsRecording(true);
-    }
-  }, []);
+    
+    animationFrameRef.current = requestAnimationFrame(monitorAudioLevel);
+  }, [callState, config.silenceThreshold, config.silenceTimeout, processRecording, isMuted]);
 
   // Iniciar llamada
   const startCall = useCallback(async () => {
@@ -200,8 +239,10 @@ export const useAICall = ({ config }: UseAICallProps) => {
       // Pequeña pausa antes de empezar a escuchar
       setTimeout(() => {
         setCallState('listening');
-        recorderRef.current!.startRecording();
-        setIsRecording(true);
+        if (!isMuted) {
+          recorderRef.current!.startRecording();
+          setIsRecording(true);
+        }
         monitorAudioLevel();
       }, 1000);
     }
@@ -256,12 +297,55 @@ export const useAICall = ({ config }: UseAICallProps) => {
     };
   }, [endCall]);
 
+  // Función para mutear/desmutear el micrófono
+  const toggleMute = useCallback(() => {
+    if (callState === 'idle') return;
+    
+    setIsMuted(prev => {
+      const newMutedState = !prev;
+      
+      if (newMutedState) {
+        // Mutear: detener grabación pero mantener la llamada
+        if (recorderRef.current && isRecording) {
+          recorderRef.current.stopRecording(() => {
+            setIsRecording(false);
+          });
+        }
+        // Cancelar timer de silencio
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
+        }
+        // Reset detección
+        speechDetectedRef.current = false;
+        consecutiveSilenceFramesRef.current = 0;
+      } else {
+        // Desmutear: reiniciar grabación si estamos escuchando
+        if (callState === 'listening' && recorderRef.current && mediaStreamRef.current) {
+          recorderRef.current = new RecordRTC(mediaStreamRef.current, {
+            type: 'audio',
+            mimeType: 'audio/wav',
+            recorderType: RecordRTC.StereoAudioRecorder,
+            numberOfAudioChannels: 1,
+            desiredSampRate: 16000
+          });
+          recorderRef.current.startRecording();
+          setIsRecording(true);
+        }
+      }
+      
+      return newMutedState;
+    });
+  }, [callState, isRecording]);
+
   return {
     callState,
     isRecording,
+    isMuted,
     audioLevel,
     error,
     startCall,
-    endCall
+    endCall,
+    toggleMute
   };
 };

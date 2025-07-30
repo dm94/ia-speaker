@@ -13,7 +13,7 @@ function App() {
     silenceTimeout: 2000,
   });
 
-  const { callState, isRecording, audioLevel, error, startCall, endCall } =
+  const { callState, isRecording, isMuted, audioLevel, error, startCall, endCall, toggleMute } =
     useAICall({ config });
 
   const getStateText = () => {
@@ -107,7 +107,9 @@ function App() {
 
               {/* Indicador de micrófono */}
               <div className="flex justify-center mt-2">
-                {isRecording ? (
+                {isMuted ? (
+                  <MicOff className="w-5 h-5 text-red-400" />
+                ) : isRecording ? (
                   <Mic className="w-5 h-5 text-green-400" />
                 ) : (
                   <MicOff className="w-5 h-5 text-gray-400" />
@@ -117,8 +119,33 @@ function App() {
           </div>
         )}
 
-        {/* Botón principal de llamada */}
-        <div className="flex justify-center mb-6">
+        {/* Botones de control */}
+        <div className="flex justify-center items-center space-x-4 mb-6">
+          {/* Botón de mute (solo visible durante llamada) */}
+          {isCallActive && (
+            <button
+              onClick={toggleMute}
+              className={`
+                w-16 h-16 rounded-full flex items-center justify-center
+                transition-all duration-300 transform hover:scale-105
+                shadow-lg border-4
+                ${
+                  isMuted
+                    ? "bg-red-500 hover:bg-red-600 border-red-400"
+                    : "bg-gray-600 hover:bg-gray-700 border-gray-500"
+                }
+              `}
+              disabled={callState === "calling" || callState === "processing"}
+            >
+              {isMuted ? (
+                <MicOff className="w-6 h-6 text-white" />
+              ) : (
+                <Mic className="w-6 h-6 text-white" />
+              )}
+            </button>
+          )}
+          
+          {/* Botón principal de llamada */}
           <button
             onClick={isCallActive ? endCall : startCall}
             className={`
@@ -144,7 +171,12 @@ function App() {
         {/* Información adicional */}
         <div className="text-center text-white/60 text-xs space-y-1">
           <p>Nivel de audio: {Math.round((audioLevel / 255) * 100)}%</p>
-          {isCallActive && <p className="text-green-400">🔴 En vivo</p>}
+          {isCallActive && (
+            <div className="flex justify-center items-center space-x-2">
+              <p className="text-green-400">🔴 En vivo</p>
+              {isMuted && <p className="text-red-400">🔇 Muteado</p>}
+            </div>
+          )}
         </div>
 
         {/* Error */}

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Settings, Check, X, Wifi, WifiOff } from 'lucide-react';
-import { AppConfig } from '../types/speech';
-import { LMStudioService } from '../services/speechService';
+import React, { useState } from "react";
+import { Settings, Check, X, Wifi, WifiOff } from "lucide-react";
+import { AppConfig } from "../types/speech";
+import { LMStudioService } from "../services/speechService";
 
 interface ConfigPanelProps {
   config: AppConfig;
@@ -12,12 +12,14 @@ interface ConfigPanelProps {
 export const ConfigPanel: React.FC<ConfigPanelProps> = ({
   config,
   onConfigChange,
-  isCallActive
+  isCallActive,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tempConfig, setTempConfig] = useState(config);
   const [isTestingConnection, setIsTestingConnection] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'unknown' | 'connected' | 'disconnected'>('unknown');
+  const [connectionStatus, setConnectionStatus] = useState<
+    "unknown" | "connected" | "disconnected"
+  >("unknown");
 
   const handleSave = () => {
     onConfigChange(tempConfig);
@@ -32,11 +34,14 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
   const testConnection = async () => {
     setIsTestingConnection(true);
     try {
-      const lmStudio = new LMStudioService(tempConfig.lmStudioUrl, tempConfig.lmStudioModel);
+      const lmStudio = new LMStudioService(
+        tempConfig.lmStudioUrl,
+        tempConfig.lmStudioModel
+      );
       const isConnected = await lmStudio.checkConnection();
-      setConnectionStatus(isConnected ? 'connected' : 'disconnected');
+      setConnectionStatus(isConnected ? "connected" : "disconnected");
     } catch {
-      setConnectionStatus('disconnected');
+      setConnectionStatus("disconnected");
     } finally {
       setIsTestingConnection(false);
     }
@@ -72,7 +77,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
           {/* LM Studio Configuration */}
           <div className="space-y-3">
             <h3 className="text-lg font-semibold text-white">LM Studio</h3>
-            
+
             <div>
               <label className="block text-sm font-medium text-white/80 mb-2">
                 URL del servidor
@@ -80,7 +85,9 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
               <input
                 type="text"
                 value={tempConfig.lmStudioUrl}
-                onChange={(e) => setTempConfig({ ...tempConfig, lmStudioUrl: e.target.value })}
+                onChange={(e) =>
+                  setTempConfig({ ...tempConfig, lmStudioUrl: e.target.value })
+                }
                 className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="http://localhost:1234"
               />
@@ -93,7 +100,12 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
               <input
                 type="text"
                 value={tempConfig.lmStudioModel}
-                onChange={(e) => setTempConfig({ ...tempConfig, lmStudioModel: e.target.value })}
+                onChange={(e) =>
+                  setTempConfig({
+                    ...tempConfig,
+                    lmStudioModel: e.target.value,
+                  })
+                }
                 className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="local-model"
               />
@@ -107,22 +119,22 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
               >
                 {isTestingConnection ? (
                   <div className="w-4 h-4 border-2 border-blue-300 border-t-transparent rounded-full animate-spin" />
-                ) : connectionStatus === 'connected' ? (
+                ) : connectionStatus === "connected" ? (
                   <Wifi className="w-4 h-4" />
-                ) : connectionStatus === 'disconnected' ? (
+                ) : connectionStatus === "disconnected" ? (
                   <WifiOff className="w-4 h-4" />
                 ) : (
                   <Wifi className="w-4 h-4" />
                 )}
                 <span>
-                  {isTestingConnection ? 'Probando...' : 'Probar conexión'}
+                  {isTestingConnection ? "Probando..." : "Probar conexión"}
                 </span>
               </button>
-              
-              {connectionStatus === 'connected' && (
+
+              {connectionStatus === "connected" && (
                 <span className="text-green-400 text-sm">✓ Conectado</span>
               )}
-              {connectionStatus === 'disconnected' && (
+              {connectionStatus === "disconnected" && (
                 <span className="text-red-400 text-sm">✗ Sin conexión</span>
               )}
             </div>
@@ -130,8 +142,10 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
 
           {/* Audio Configuration */}
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-white">Detección de Audio</h3>
-            
+            <h3 className="text-lg font-semibold text-white">
+              Detección de Audio
+            </h3>
+
             <div>
               <label className="block text-sm font-medium text-white/80 mb-2">
                 Umbral de silencio (0-255)
@@ -141,12 +155,19 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
                 min="0"
                 max="50"
                 value={tempConfig.silenceThreshold}
-                onChange={(e) => setTempConfig({ ...tempConfig, silenceThreshold: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setTempConfig({
+                    ...tempConfig,
+                    silenceThreshold: parseInt(e.target.value),
+                  })
+                }
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-white/60 mt-1">
                 <span>Muy sensible</span>
-                <span className="text-white">{tempConfig.silenceThreshold}</span>
+                <span className="text-white">
+                  {tempConfig.silenceThreshold}
+                </span>
                 <span>Poco sensible</span>
               </div>
             </div>
@@ -161,12 +182,19 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
                 max="5000"
                 step="100"
                 value={tempConfig.silenceTimeout}
-                onChange={(e) => setTempConfig({ ...tempConfig, silenceTimeout: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setTempConfig({
+                    ...tempConfig,
+                    silenceTimeout: parseInt(e.target.value),
+                  })
+                }
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-white/60 mt-1">
                 <span>Rápido</span>
-                <span className="text-white">{tempConfig.silenceTimeout}ms</span>
+                <span className="text-white">
+                  {tempConfig.silenceTimeout}ms
+                </span>
                 <span>Lento</span>
               </div>
             </div>
@@ -174,7 +202,9 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
 
           {/* Information */}
           <div className="bg-blue-500/10 border border-blue-400/20 rounded-lg p-4">
-            <h4 className="text-sm font-semibold text-blue-300 mb-2">Información</h4>
+            <h4 className="text-sm font-semibold text-blue-300 mb-2">
+              Información
+            </h4>
             <ul className="text-xs text-blue-200 space-y-1">
               <li>• Asegúrate de que LM Studio esté ejecutándose</li>
               <li>• El modelo debe estar cargado en LM Studio</li>
