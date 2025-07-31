@@ -13,8 +13,16 @@ function App() {
     silenceTimeout: 2000,
   });
 
-  const { callState, isRecording, isMuted, audioLevel, error, startCall, endCall, toggleMute } =
-    useAICall({ config });
+  const {
+    callState,
+    isRecording,
+    isMuted,
+    audioLevel,
+    error,
+    startCall,
+    endCall,
+    toggleMute,
+  } = useAICall({ config });
 
   const getStateText = () => {
     switch (callState) {
@@ -144,7 +152,7 @@ function App() {
               )}
             </button>
           )}
-          
+
           {/* Botón principal de llamada */}
           <button
             onClick={isCallActive ? endCall : startCall}
@@ -199,12 +207,6 @@ function App() {
                 }`}
               >
                 {isCallActive ? "En línea" : "Desconectado"}
-              </span>
-            </p>
-            <p className="flex items-center justify-between">
-              <span>LM Studio:</span>
-              <span className="text-blue-300">
-                {config.lmStudioUrl.replace("http://", "")}
               </span>
             </p>
           </div>
