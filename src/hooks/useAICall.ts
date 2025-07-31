@@ -28,17 +28,17 @@ export const useAICall = ({ config }: UseAICallProps) => {
   const consecutiveSilenceFramesRef = useRef(0);
   const callStateRef = useRef<CallState>('idle');
   
-  // Servicios
+  // Services
   const transcriptionService = useRef(new SpeechTranscriptionService());
   const synthesisService = useRef(new SpeechSynthesisService());
   const lmStudioService = useRef(new LMStudioService(config.lmStudioUrl, config.lmStudioModel));
 
-  // Mantener callStateRef sincronizado con callState
+  // Keep callStateRef synchronized with callState
   useEffect(() => {
     callStateRef.current = callState;
   }, [callState]);
 
-  // Inicializar grabación de audio
+  // Initialize audio recording
   const initializeAudio = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -51,7 +51,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
       
       mediaStreamRef.current = stream;
       
-      // Configurar analizador de audio para detección de silencio
+      // Configure audio analyzer for silence detection
       const audioContext = new AudioContext();
       const analyser = audioContext.createAnalyser();
       const source = audioContext.createMediaStreamSource(stream);
@@ -62,7 +62,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
       audioContextRef.current = audioContext;
       analyserRef.current = analyser;
       
-      // Configurar RecordRTC
+      // Configure RecordRTC
       const recorder = new RecordRTC(stream, {
         type: 'audio',
         mimeType: 'audio/wav',
@@ -75,14 +75,14 @@ export const useAICall = ({ config }: UseAICallProps) => {
       
       return true;
     } catch (err) {
-      setError('Error al acceder al micrófono: ' + (err as Error).message);
+      setError('Error accessing microphone: ' + (err as Error).message);
       return false;
     }
   }, []);
 
 
 
-  // Iniciar nueva grabación después de respuesta
+  // Start new recording after response
   const startNewRecording = useCallback(() => {
     if (recorderRef.current && mediaStreamRef.current && !isMuted) {
       recorderRef.current = new RecordRTC(mediaStreamRef.current, {
@@ -95,83 +95,83 @@ export const useAICall = ({ config }: UseAICallProps) => {
       
       recorderRef.current.startRecording();
       setIsRecording(true);
-      // Reset detección de habla para nueva grabación
+      // Reset speech detection for new recording
       speechDetectedRef.current = false;
       consecutiveSilenceFramesRef.current = 0;
     }
   }, [isMuted]);
 
-  // Sintetizar y reproducir respuesta de voz
+  // Synthesize and play speech response
   const synthesizeAndPlaySpeech = useCallback(async (text: string) => {
     callStateRef.current = 'speaking';
     setCallState('speaking');
     
     try {
-      // Intentar usar sesame/csm-1b primero
+      // Try using sesame/csm-1b first
       try {
         const audioBuffer = await synthesisService.current.synthesizeSpeech(text);
         await synthesisService.current.playAudioBuffer(audioBuffer);
       } catch {
-        // Fallback a Web Speech API
+        // Fallback to Web Speech API
         await synthesisService.current.synthesizeSpeechFallback(text);
       }
       
-      // Continuar conversación
+      // Continue conversation
       callStateRef.current = 'listening';
       setCallState('listening');
       startNewRecording();
       
     } catch (err) {
-      setError('Error al sintetizar voz: ' + (err as Error).message);
+      setError('Error synthesizing speech: ' + (err as Error).message);
       callStateRef.current = 'listening';
       setCallState('listening');
       startNewRecording();
     }
   }, [startNewRecording]);
 
-  // Procesar grabación cuando se detecta silencio
+  // Process recording when silence is detected
   const processRecording = useCallback(async () => {
     const currentCallState = callStateRef.current;
-    console.log('🎤 Iniciando procesamiento de grabación...', { callState: currentCallState, hasRecorder: !!recorderRef.current, isMuted });
+    console.log('🎤 Starting recording processing...', { callState: currentCallState, hasRecorder: !!recorderRef.current, isMuted });
     if (!recorderRef.current || currentCallState !== 'listening' || isMuted) {
-      console.log('❌ No se puede procesar: sin grabador, estado incorrecto o micrófono muteado', { callState: currentCallState, hasRecorder: !!recorderRef.current, isMuted });
+      console.log('❌ Cannot process: no recorder, incorrect state or microphone muted', { callState: currentCallState, hasRecorder: !!recorderRef.current, isMuted });
       return;
     }
     
-    console.log('⚙️ Cambiando estado a processing...');
+    console.log('⚙️ Changing state to processing...');
     callStateRef.current = 'processing';
     setCallState('processing');
     
     try {
-      // Detener grabación temporalmente
+      // Stop recording temporarily
       recorderRef.current.stopRecording(async () => {
         const blob = recorderRef.current!.getBlob();
         
         try {
-          // Transcribir audio
+          // Transcribe audio
           const transcript = await transcriptionService.current.transcribeAudio(blob);
           
           if (transcript.trim()) {
-            // Generar respuesta con LM Studio
+            // Generate response with LM Studio
             const aiResponse = await lmStudioService.current.generateResponse(transcript);
             
             if (aiResponse) {
               await synthesizeAndPlaySpeech(aiResponse);
             } else {
-              setError('No se pudo generar respuesta');
+              setError('Could not generate response');
               callStateRef.current = 'listening';
               setCallState('listening');
               startNewRecording();
             }
           } else {
-            // Si no hay transcripción, volver a escuchar
+            // If no transcription, go back to listening
             callStateRef.current = 'listening';
             setCallState('listening');
             startNewRecording();
           }
           
         } catch (err) {
-          setError('Error al procesar audio: ' + (err as Error).message);
+          setError('Error processing audio: ' + (err as Error).message);
           callStateRef.current = 'listening';
           setCallState('listening');
           startNewRecording();
@@ -179,14 +179,14 @@ export const useAICall = ({ config }: UseAICallProps) => {
       });
       
     } catch (err) {
-      setError('Error al procesar grabación: ' + (err as Error).message);
+      setError('Error processing recording: ' + (err as Error).message);
       callStateRef.current = 'listening';
       setCallState('listening');
       startNewRecording();
     }
   }, [callState, synthesizeAndPlaySpeech, startNewRecording]);
 
-  // Monitorear nivel de audio y detectar silencio mejorado
+  // Monitor audio level and improved silence detection
   const monitorAudioLevel = useCallback(() => {
     if (!analyserRef.current || isMuted) {
       setAudioLevel(0);
@@ -197,40 +197,37 @@ export const useAICall = ({ config }: UseAICallProps) => {
     const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
     analyserRef.current.getByteFrequencyData(dataArray);
     
-    // Calcular nivel promedio de audio
+    // Calculate average audio level
     const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
     setAudioLevel(average);
     
-    // Mejorar detección de habla vs ruido de fondo
-    const speechThreshold = config.silenceThreshold + 5; // Umbral más alto para detectar habla real
+    // Improve speech detection vs background noise
+    const speechThreshold = config.silenceThreshold + 5; // Higher threshold to detect real speech
     const isSpeaking = average > speechThreshold;
     
     if (isSpeaking) {
       speechDetectedRef.current = true;
       consecutiveSilenceFramesRef.current = 0;
       
-      // Cancelar timer de silencio si hay habla
+      // Cancel silence timer if there's speech
       if (silenceTimerRef.current) {
-        console.log('🔊 Habla detectada, cancelando timer de silencio');
+        console.log('🔊 Speech detected, canceling silence timer');
         clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = null;
       }
     } else {
-      // Solo procesar si ya se detectó habla previamente
+      // Only process if speech was previously detected
       if (speechDetectedRef.current) {
         consecutiveSilenceFramesRef.current++;
         
-        // Requerir múltiples frames consecutivos de silencio para mayor precisión
-        const requiredSilenceFrames = Math.floor(config.silenceTimeout / 50); // ~50ms por frame
+        // Require multiple consecutive silence frames for better accuracy
+        const requiredSilenceFrames = Math.floor(config.silenceTimeout / 50); // ~50ms per frame
         
         if (consecutiveSilenceFramesRef.current >= requiredSilenceFrames && !silenceTimerRef.current) {
           const currentCallState = callStateRef.current;
-          console.log('🔇 Silencio prolongado detectado después de habla, procesando...', { 
-            callState: currentCallState
-          });
           
           if (currentCallState === 'listening') {
-            // Reset para próxima detección
+            // Reset for next detection
             speechDetectedRef.current = false;
             consecutiveSilenceFramesRef.current = 0;
             processRecording();
@@ -242,7 +239,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
     animationFrameRef.current = requestAnimationFrame(monitorAudioLevel);
   }, [callState, config.silenceThreshold, config.silenceTimeout, processRecording, isMuted]);
 
-  // Iniciar llamada
+  // Start call
   const startCall = useCallback(async () => {
     setError(null);
     const audioInitialized = await initializeAudio();
@@ -251,7 +248,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
       callStateRef.current = 'calling';
       setCallState('calling');
       
-      // Pequeña pausa antes de empezar a escuchar
+      // Small pause before starting to listen
       setTimeout(() => {
         callStateRef.current = 'listening';
         setCallState('listening');
@@ -264,7 +261,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
     }
   }, [initializeAudio, monitorAudioLevel]);
 
-  // Finalizar llamada
+  // End call
   const endCall = useCallback(() => {
     callStateRef.current = 'idle';
     setCallState('idle');
@@ -272,7 +269,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
     setAudioLevel(0);
     setError(null);
     
-    // Limpiar timers
+    // Clean up timers
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
@@ -283,38 +280,38 @@ export const useAICall = ({ config }: UseAICallProps) => {
       animationFrameRef.current = null;
     }
     
-    // Detener servicios
+    // Stop services
     transcriptionService.current.stopTranscription();
     synthesisService.current.stopSynthesis();
     
-    // Detener grabación
+    // Stop recording
     if (recorderRef.current) {
       recorderRef.current.stopRecording(() => {
         recorderRef.current = null;
       });
     }
     
-    // Cerrar stream de audio
+    // Close audio stream
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach(track => track.stop());
       mediaStreamRef.current = null;
     }
     
-    // Cerrar contexto de audio
+    // Close audio context
     if (audioContextRef.current) {
       audioContextRef.current.close();
       audioContextRef.current = null;
     }
   }, []);
 
-  // Limpiar al desmontar componente
+  // Clean up on component unmount
   useEffect(() => {
     return () => {
       endCall();
     };
   }, [endCall]);
 
-  // Función para mutear/desmutear el micrófono
+  // Function to mute/unmute microphone
   const toggleMute = useCallback(() => {
     if (callStateRef.current === 'idle') { return;}
     
@@ -322,22 +319,22 @@ export const useAICall = ({ config }: UseAICallProps) => {
       const newMutedState = !prev;
       
       if (newMutedState) {
-        // Mutear: detener grabación pero mantener la llamada
+        // Mute: stop recording but keep call active
         if (recorderRef.current && isRecording) {
           recorderRef.current.stopRecording(() => {
             setIsRecording(false);
           });
         }
-        // Cancelar timer de silencio
+        // Cancel silence timer
         if (silenceTimerRef.current) {
           clearTimeout(silenceTimerRef.current);
           silenceTimerRef.current = null;
         }
-        // Reset detección
+        // Reset detection
         speechDetectedRef.current = false;
         consecutiveSilenceFramesRef.current = 0;
       } else {
-        // Desmutear: reiniciar grabación si estamos escuchando
+        // Unmute: restart recording if we're listening
         if (callStateRef.current === 'listening' && recorderRef.current && mediaStreamRef.current) {
           recorderRef.current = new RecordRTC(mediaStreamRef.current, {
             type: 'audio',
