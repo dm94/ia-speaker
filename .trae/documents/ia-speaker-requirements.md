@@ -1,97 +1,81 @@
-# IA Speaker - Documento de Requisitos del Producto
+# Requisitos del Producto - IA Speaker
 
 ## 1. Descripción General del Producto
-IA Speaker es una aplicación de escritorio que permite conversaciones por voz con inteligencia artificial de manera completamente local. La aplicación captura audio del usuario, lo transcribe a texto, genera respuestas usando LM Studio (API compatible con OpenAI), y convierte las respuestas a voz usando el modelo sesame/csm-1b.
 
-El producto resuelve la necesidad de tener conversaciones naturales con IA sin depender de servicios en la nube, garantizando privacidad y funcionamiento offline.
+IA Speaker es una aplicación web React que simula una llamada telefónica con inteligencia artificial de manera completamente local. La aplicación integra el modelo de síntesis de voz sesame/csm-1b para generar respuestas habladas y LM Studio para la generación de texto, proporcionando una experiencia de conversación natural mediante un sistema de llamada con detección automática de voz.
 
-## 2. Características Principales
+- Soluciona la necesidad de interactuar con IA de forma natural mediante voz, simulando una llamada telefónica real.
+- Dirigida a usuarios que buscan una experiencia de conversación fluida y privada con modelos de IA sin configuraciones complejas.
+- Valor del mercado: Proporciona una alternativa local y privada a los asistentes de voz comerciales.
 
-### 2.1 Roles de Usuario
-No se requieren roles diferenciados. La aplicación funciona con un usuario por defecto que tiene acceso completo a todas las funcionalidades.
+## 2. Funcionalidades Principales
 
-### 2.2 Módulo de Características
-Nuestra aplicación IA Speaker consta de las siguientes páginas principales:
-1. **Página Principal**: interfaz de conversación, controles de audio, configuración básica.
-2. **Página de Configuración**: configuración de LM Studio, configuración de modelo de voz, ajustes de audio.
-3. **Página de Historial**: historial de conversaciones, búsqueda de conversaciones anteriores.
+### 2.1 Módulo de Funcionalidades
 
-### 2.3 Detalles de Páginas
+Nuestros requisitos de IA Speaker consisten en una página principal:
 
-| Nombre de Página | Nombre del Módulo | Descripción de Características |
-|------------------|-------------------|--------------------------------|
-| Página Principal | Interfaz de Conversación | Mostrar conversación en tiempo real con burbujas de chat, indicador visual de estado (escuchando/procesando/hablando) |
-| Página Principal | Controles de Audio | Botón de micrófono para iniciar/detener grabación, control de volumen de salida, indicador de nivel de audio |
-| Página Principal | Respuesta de IA | Mostrar texto de respuesta generado, reproducir audio de respuesta usando sesame/csm-1b |
-| Página de Configuración | Configuración LM Studio | Campo para URL del servidor LM Studio, selección de modelo, configuración de parámetros (temperatura, max tokens) |
-| Página de Configuración | Configuración de Voz | Configuración del modelo sesame/csm-1b, ajustes de velocidad y tono de voz |
-| Página de Configuración | Ajustes de Audio | Selección de dispositivo de entrada y salida, configuración de sensibilidad del micrófono |
-| Página de Historial | Lista de Conversaciones | Mostrar conversaciones anteriores con fecha y hora, función de búsqueda por texto |
-| Página de Historial | Detalles de Conversación | Ver conversación completa seleccionada, opción de reproducir audio de respuestas anteriores |
+1. **Interfaz de Llamada**: botón de llamada, indicador de estado, procesamiento automático de voz con detección de silencio.
+
+### 2.2 Detalles de Páginas
+
+| Nombre de Página | Nombre del Módulo | Descripción de Funcionalidad |
+|------------------|-------------------|------------------------------|
+| Interfaz de Llamada | Botón de llamada | Iniciar y finalizar llamada con un solo botón, cambio visual de estado |
+| Interfaz de Llamada | Grabación continua | Capturar audio del micrófono mientras la llamada está activa |
+| Interfaz de Llamada | Detección de silencio | Detectar automáticamente cuando el usuario deja de hablar para procesar el audio |
+| Interfaz de Llamada | Procesamiento automático | Enviar audio a LM Studio para transcripción y generación de respuesta sin intervención del usuario |
+| Interfaz de Llamada | Síntesis de voz | Generar audio de respuesta usando sesame/csm-1b |
+| Interfaz de Llamada | Reproducción automática | Reproducir respuesta de la IA automáticamente después de la síntesis |
+| Interfaz de Llamada | Indicadores visuales | Mostrar estado de la llamada, grabación, procesamiento y reproducción |
 
 ## 3. Proceso Principal
-El flujo principal del usuario es el siguiente:
-1. El usuario abre la aplicación y accede a la Página Principal
-2. Configura LM Studio y el modelo de voz en la Página de Configuración si es la primera vez
-3. Regresa a la Página Principal y presiona el botón del micrófono para iniciar una conversación
-4. Habla al micrófono, la aplicación transcribe el audio a texto
-5. El texto se envía a LM Studio para generar una respuesta
-6. La respuesta se convierte a voz usando sesame/csm-1b y se reproduce
-7. El usuario puede continuar la conversación o revisar el historial en la Página de Historial
+
+El flujo principal del usuario simula una llamada telefónica:
+
+1. **Inicio de llamada**: El usuario presiona el botón de llamada para iniciar la sesión.
+2. **Grabación continua**: El sistema inicia la grabación automática del micrófono.
+3. **Detección de silencio**: Cuando el usuario deja de hablar, el sistema detecta automáticamente el silencio.
+4. **Procesamiento automático**: El audio se envía automáticamente a LM Studio para transcripción y generación de respuesta.
+5. **Síntesis de voz**: El texto de respuesta se procesa con sesame/csm-1b para generar audio.
+6. **Reproducción automática**: La respuesta se reproduce automáticamente al usuario.
+7. **Continuación**: El ciclo se repite automáticamente hasta que el usuario finaliza la llamada.
+8. **Fin de llamada**: El usuario presiona nuevamente el botón para terminar la sesión.
 
 ```mermaid
 graph TD
-    A[Página Principal] --> B[Página de Configuración]
-    A --> C[Página de Historial]
-    B --> A
-    C --> A
-    A --> D[Iniciar Grabación]
-    D --> E[Transcribir Audio]
-    E --> F[Generar Respuesta LM Studio]
-    F --> G[Síntesis de Voz]
-    G --> A
+  A[Interfaz Principal] --> B[Presionar Botón Llamada]
+  B --> C[Grabación Continua Activa]
+  C --> D[Usuario Habla]
+  D --> E[Detección de Silencio]
+  E --> F[Procesamiento Automático]
+  F --> G[Síntesis de Voz]
+  G --> H[Reproducción Automática]
+  H --> C
+  C --> I[Presionar Botón Finalizar]
+  I --> A
 ```
 
-## 4. Arquitectura Técnica
-### 4.1 Stack Tecnológico
-**Frontend:**
-- React.js con TypeScript
-- Web Audio API para captura de audio
-- Fetch API para comunicación con servicios
+## 4. Diseño de Interfaz de Usuario
 
-**Backend:**
-- Python con FastAPI para servir sesame/csm-1b
-- Transformers de Hugging Face (versión 4.52.1+)
-- PyTorch para inferencia del modelo
+### 4.1 Estilo de Diseño
 
-**Servicios Externos:**
-- LM Studio (API compatible con OpenAI)
-- Modelo sesame/csm-1b para síntesis de voz
+- **Colores primarios**: Azul oscuro (#1a365d) y azul claro (#3182ce)
+- **Colores secundarios**: Gris claro (#f7fafc) y gris oscuro (#2d3748)
+- **Estilo de botones**: Redondeados con sombras suaves, efectos hover
+- **Fuente**: Inter, tamaños 14px para texto normal, 18px para títulos
+- **Estilo de layout**: Diseño centrado con tarjetas, navegación lateral
+- **Iconos**: Iconos de Lucide React para consistencia y claridad
 
-### 4.2 Flujo de Datos
-1. Frontend captura audio del micrófono
-2. Conversión speech-to-text en el navegador
-3. Envío de texto a LM Studio para generación de respuesta
-4. Envío de respuesta a backend Python con sesame/csm-1b
-5. Generación de audio y retorno al frontend
-
-## 5. Diseño de Interfaz de Usuario
-### 5.1 Estilo de Diseño
-- **Colores primarios**: #2563eb (azul), #1f2937 (gris oscuro)
-- **Colores secundarios**: #10b981 (verde), #ef4444 (rojo)
-- **Estilo de botones**: Botones redondeados con efectos hover
-- **Fuente**: Inter, tamaño base 16px
-- **Estilo de layout**: Layout tipo card con navegación superior
-- **Iconos**: Iconos estilo outline con animaciones suaves
-
-### 5.2 Resumen de Diseño de Páginas
+### 4.2 Resumen de Diseño de Páginas
 
 | Nombre de Página | Nombre del Módulo | Elementos de UI |
 |------------------|-------------------|----------------|
-| Página Principal | Panel de Control | Botón circular grande para iniciar/detener grabación (verde/rojo), indicador visual de nivel de audio, área de texto para mostrar conversación |
-| Página Principal | Visualizador de Conversación | Lista scrolleable de mensajes con burbujas diferenciadas (usuario: azul claro, IA: gris claro), timestamps, indicadores de estado |
-| Página Principal | Controles de Audio | Botones para silenciar micrófono, ajustar volumen, selector de dispositivos de audio |
-| Configuración | Panel de Configuración | Formulario con campos para URL de LM Studio, configuración de modelo de voz, ajustes de calidad de audio |
+| Interfaz de Llamada | Interfaz principal | Fondo degradado azul a púrpura, diseño centrado tipo teléfono |
+| Interfaz de Llamada | Botón de llamada | Botón circular grande (#4CAF50 inactivo, #F44336 activo) con ícono de teléfono, animación de pulso durante llamada |
+| Interfaz de Llamada | Indicadores de estado | Texto descriptivo del estado (Inactivo/En llamada/Procesando/Reproduciendo) |
+| Interfaz de Llamada | Visualizador de audio | Ondas de audio en tiempo real durante grabación y reproducción |
+| Interfaz de Llamada | Indicador de actividad | Spinner o animación durante procesamiento de IA |
 
-### 5.3 Responsividad
-Diseño mobile-first con adaptación a desktop, optimizado para interacción táctil en dispositivos móviles.
+### 4.3 Responsividad
+
+La aplicación está diseñada con enfoque mobile-first simulando la interfaz de una aplicación de llamadas. Se optimiza para dispositivos táctiles con un botón principal de gran tamaño para fácil interacción. La interfaz se adapta a pantallas desde 320px hasta escritorio, manteniendo la simplicidad de una llamada telefónica en todos los dispositivos.

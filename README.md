@@ -1,210 +1,180 @@
 # IA Speaker
 
-Una aplicación web para conversaciones por voz con inteligencia artificial que funciona completamente de manera local. Utiliza LM Studio para generación de texto y el modelo sesame/csm-1b para síntesis de voz.
+Una aplicación web React que simula una llamada telefónica con inteligencia artificial de manera completamente local.
 
-## 🚀 Características
+## 🎯 Características
 
-- **Conversación por voz bidireccional** con IA
-- **Funcionamiento completamente local** - sin dependencias de servicios en la nube
-- **Integración con LM Studio** para generación de texto
-- **Síntesis de voz avanzada** usando sesame/csm-1b
-- **Interfaz moderna** construida con React y TypeScript
-- **Historial de conversaciones** con búsqueda
-- **Configuración flexible** de parámetros de IA y audio
-
-## 🛠️ Tecnologías
-
-- **Frontend**: React 18 + TypeScript + Tailwind CSS
-- **Backend**: Python + FastAPI (para síntesis de voz)
-- **IA**: LM Studio (generación de texto) + sesame/csm-1b (síntesis de voz)
-- **Audio**: Web Audio API + Web Speech API
+- 🎙️ **Conversación por voz**: Interfaz de llamada telefónica con grabación continua
+- 🤖 **IA Local**: Integración con LM Studio para generación de texto
+- 🔊 **Síntesis de voz**: Compatible con sesame/csm-1b (fallback a Web Speech API)
+- 🔒 **Privacidad total**: Todo funciona localmente, sin envío de datos externos
+- 📱 **Responsive**: Diseño optimizado para móviles y escritorio
+- ⚡ **Detección automática**: Procesamiento automático cuando detecta silencio
+- ⚙️ **Configuración visual**: Panel de configuración integrado
 
 ## 📋 Requisitos Previos
 
 ### Software Necesario
+
 1. **Node.js** (v18 o superior)
-2. **Python** (v3.8 o superior)
-3. **LM Studio** - [Descargar aquí](https://lmstudio.ai/)
-4. **CUDA** (opcional, para aceleración GPU)
+2. **LM Studio** instalado y configurado
+3. **Navegador moderno** con soporte para Web Audio API
 
-### Modelos Requeridos
-1. **Modelo de lenguaje** en LM Studio (ej: Llama, Mistral, etc.)
-2. **sesame/csm-1b** para síntesis de voz
-
-## 🚀 Instalación
-
-### 1. Clonar el Repositorio
-```bash
-git clone <repository-url>
-cd ia-speaker
-```
-
-### 2. Instalar Dependencias del Frontend
-```bash
-pnpm install
-# o
-npm install
-```
-
-### 3. Configurar Backend Python (Síntesis de Voz)
-
-Crea un entorno virtual de Python:
-```bash
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# macOS/Linux
-source venv/bin/activate
-```
-
-Instala las dependencias de Python:
-```bash
-pip install fastapi uvicorn torch transformers datasets
-```
-
-### 4. Configurar LM Studio
+### Configuración de LM Studio
 
 1. Descarga e instala [LM Studio](https://lmstudio.ai/)
-2. Descarga un modelo de lenguaje (recomendado: Llama 3.1 8B o similar)
+2. Descarga un modelo de lenguaje compatible (recomendado: Llama 3.2 1B o similar)
 3. Inicia el servidor local en LM Studio:
    - Ve a la pestaña "Local Server"
-   - Selecciona tu modelo
+   - Carga tu modelo preferido
    - Inicia el servidor en `http://localhost:1234`
+
+### Configuración de Sesame CSM-1B (Opcional)
+
+> **Nota**: Actualmente la aplicación usa Web Speech API para síntesis. La integración con sesame/csm-1b está preparada para implementación futura.
+
+Para usar sesame/csm-1b:
+
+1. Clona el repositorio de CSM:
+   ```bash
+   git clone https://github.com/SesameAILabs/csm.git
+   cd csm
+   ```
+
+2. Instala las dependencias:
+   ```bash
+   python3.10 -m venv .venv
+   source .venv/bin/activate  # En Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+3. Configura el acceso a los modelos:
+   ```bash
+   export NO_TORCH_COMPILE=1
+   huggingface-cli login
+   ```
+
+## 🛠️ Instalación
+
+1. **Clona el repositorio**:
+   ```bash
+   git clone <repository-url>
+   cd ia-speaker
+   ```
+
+2. **Instala las dependencias**:
+   ```bash
+   pnpm install
+   # o
+   npm install
+   ```
+
+3. **Inicia la aplicación**:
+   ```bash
+   pnpm dev
+   # o
+   npm run dev
+   ```
+
+4. **Abre tu navegador** en `http://localhost:5173`
+
+## ⚙️ Configuración
+
+### Configuración de la Aplicación
+
+La configuración se encuentra en `src/App.tsx`:
+
+```typescript
+const [config] = useState<AppConfig>({
+  lmStudioUrl: 'http://localhost:1234',     // URL de LM Studio
+  lmStudioModel: 'local-model',             // Nombre del modelo
+  silenceThreshold: 10,                     // Umbral de detección de silencio (0-255)
+  silenceTimeout: 2000                      // Tiempo de espera en ms
+});
+```
+
+### Parámetros Ajustables
+
+- **`silenceThreshold`**: Sensibilidad para detectar silencio (menor = más sensible)
+- **`silenceTimeout`**: Tiempo de espera antes de procesar el audio
+- **`lmStudioUrl`**: URL del servidor de LM Studio
+- **`lmStudioModel`**: Identificador del modelo a usar
 
 ## 🎯 Uso
 
-### 1. Iniciar el Backend Python
+1. **Asegúrate de que LM Studio esté ejecutándose** con un modelo cargado
+2. **Permite el acceso al micrófono** cuando el navegador lo solicite
+3. **Presiona el botón verde** para iniciar la llamada
+4. **Habla naturalmente** - la aplicación detectará automáticamente cuando dejes de hablar
+5. **Escucha la respuesta** de la IA
+6. **Continúa la conversación** - el ciclo se repite automáticamente
+7. **Presiona el botón rojo** para finalizar la llamada
 
-Crea un archivo `backend/main.py`:
-```python
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import torch
-from transformers import CsmForConditionalGeneration, AutoProcessor
+## 🔧 Desarrollo
 
-app = FastAPI()
-
-# Configurar CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Cargar modelo sesame/csm-1b
-model_id = "sesame/csm-1b"
-device = "cuda" if torch.cuda.is_available() else "cpu"
-processor = AutoProcessor.from_pretrained(model_id)
-model = CsmForConditionalGeneration.from_pretrained(model_id, device_map=device)
-
-@app.post("/synthesize")
-async def synthesize_speech(request: dict):
-    text = request.get("text", "")
-    
-    # Preparar inputs
-    inputs = processor(f"[0]{text}", add_special_tokens=True).to(device)
-    
-    # Generar audio
-    audio = model.generate(**inputs, output_audio=True)
-    
-    # Guardar y retornar audio
-    audio_path = "output.wav"
-    processor.save_audio(audio, audio_path)
-    
-    return {"audio_url": f"/audio/{audio_path}"}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-```
-
-Inicia el backend:
-```bash
-cd backend
-python main.py
-```
-
-### 2. Iniciar el Frontend
-
-En otra terminal:
-```bash
-pnpm dev
-# o
-npm run dev
-```
-
-### 3. Configurar la Aplicación
-
-1. Abre `http://localhost:5173` en tu navegador
-2. Ve a la página de **Configuración**
-3. Configura:
-   - **URL de LM Studio**: `http://localhost:1234`
-   - **Modelo**: Nombre del modelo cargado en LM Studio
-   - **Parámetros de audio**: Ajusta según tus preferencias
-
-### 4. ¡Comenzar a Conversar!
-
-1. Ve a la **Página Principal**
-2. Presiona el botón del micrófono
-3. Habla tu pregunta
-4. Escucha la respuesta generada
-
-## 📁 Estructura del Proyecto
+### Estructura del Proyecto
 
 ```
-ia-speaker/
-├── src/
-│   ├── components/          # Componentes reutilizables
-│   ├── pages/              # Páginas principales
-│   │   ├── Home.tsx        # Página de conversación
-│   │   ├── Configuration.tsx # Configuración
-│   │   └── History.tsx     # Historial
-│   ├── types/              # Declaraciones de tipos
-│   └── lib/                # Utilidades
-├── backend/                # Backend Python (crear)
-│   └── main.py            # Servidor FastAPI
-├── public/                 # Archivos estáticos
-└── README.md              # Este archivo
+src/
+├── hooks/
+│   └── useAICall.ts          # Hook principal para manejo de llamadas
+├── types/
+│   └── speech.ts             # Tipos TypeScript para Web Speech API
+├── App.tsx                   # Componente principal
+├── App.css                   # Estilos personalizados
+└── main.tsx                  # Punto de entrada
 ```
 
-## ⚙️ Configuración Avanzada
+### Scripts Disponibles
 
-### Variables de Entorno
+- `pnpm dev` - Inicia el servidor de desarrollo
+- `pnpm build` - Construye la aplicación para producción
+- `pnpm preview` - Previsualiza la build de producción
+- `pnpm lint` - Ejecuta el linter
 
-Crea un archivo `.env` en la raíz del proyecto:
-```env
-VITE_LM_STUDIO_URL=http://localhost:1234
-VITE_BACKEND_URL=http://localhost:8000
-```
+### Tecnologías Utilizadas
 
-### Personalización del Modelo de Voz
+- **React 18** con TypeScript
+- **Vite** como bundler
+- **Tailwind CSS** para estilos
+- **Lucide React** para iconos
+- **RecordRTC** para grabación de audio
+- **Axios** para comunicación HTTP
+- **WaveSurfer.js** para visualización de audio
 
-Puedes ajustar los parámetros del modelo sesame/csm-1b en el backend:
-- **Velocidad de habla**
-- **Tono de voz**
-- **Calidad de audio**
-
-## 🔧 Solución de Problemas
+## 🚨 Solución de Problemas
 
 ### Error de Micrófono
-- Verifica que el navegador tenga permisos de micrófono
-- Usa HTTPS en producción para acceso al micrófono
+- Asegúrate de permitir el acceso al micrófono en tu navegador
+- Verifica que no haya otras aplicaciones usando el micrófono
+- Prueba en una pestaña de incógnito para descartar extensiones
 
 ### Error de Conexión con LM Studio
-- Asegúrate de que LM Studio esté ejecutándose
-- Verifica que el servidor local esté activo en el puerto 1234
-- Comprueba la configuración de CORS en LM Studio
+- Verifica que LM Studio esté ejecutándose en `http://localhost:1234`
+- Asegúrate de que el modelo esté cargado y el servidor iniciado
+- Revisa la configuración de CORS en LM Studio si es necesario
 
-### Error de Síntesis de Voz
-- Verifica que el backend Python esté ejecutándose
-- Asegúrate de tener suficiente memoria RAM/VRAM para el modelo
-- Comprueba que las dependencias de Python estén instaladas
+### Problemas de Audio
+- Verifica que tu navegador soporte Web Audio API
+- Ajusta los parámetros de `silenceThreshold` y `silenceTimeout`
+- Prueba con diferentes niveles de volumen del micrófono
 
-## 🤝 Contribuir
+## 🔮 Roadmap
+
+- [ ] Integración completa con sesame/csm-1b
+- [ ] Configuración de parámetros desde la UI
+- [ ] Soporte para múltiples idiomas
+- [ ] Mejoras en la detección de voz
+- [ ] Modo de transcripción en tiempo real
+- [ ] Temas personalizables
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 🤝 Contribuciones
+
+Las contribuciones son bienvenidas. Por favor:
 
 1. Fork el proyecto
 2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
@@ -212,12 +182,23 @@ Puedes ajustar los parámetros del modelo sesame/csm-1b en el backend:
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-## 📄 Licencia
+## ⚠️ Consideraciones de Privacidad
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+Esta aplicación está diseñada para funcionar completamente en local:
 
-## 🙏 Agradecimientos
+- **No se envían datos a servidores externos**
+- **Todo el procesamiento ocurre en tu máquina**
+- **LM Studio ejecuta modelos localmente**
+- **El audio nunca sale de tu dispositivo** (excepto para procesamiento local)
 
-- [Sesame](https://huggingface.co/sesame) por el modelo CSM-1B
-- [LM Studio](https://lmstudio.ai/) por la plataforma de modelos locales
-- [Hugging Face](https://huggingface.co/) por las herramientas de transformers
+## 📞 Soporte
+
+Si encuentras algún problema o tienes preguntas:
+
+1. Revisa la sección de solución de problemas
+2. Busca en los issues existentes
+3. Crea un nuevo issue con detalles del problema
+
+---
+
+**¡Disfruta conversando con tu IA local! 🎉**
