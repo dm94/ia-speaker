@@ -92,7 +92,6 @@ function App() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center p-4 relative">
-      {/* Panel de configuración */}
       <ConfigPanel
         config={config}
         onConfigChange={setConfig}
@@ -104,13 +103,11 @@ function App() {
         role="main"
         aria-label="Interfaz de llamada con IA"
       >
-        {/* Header */}
         <header className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">IA Speaker</h1>
           <p className="text-white/70 text-sm">Conversación por voz con IA</p>
         </header>
 
-        {/* Estado de la llamada */}
         <section
           className="text-center mb-8"
           aria-live="polite"
@@ -123,7 +120,6 @@ function App() {
             {getStateText()}
           </div>
 
-          {/* Indicador de actividad */}
           {callState === "processing" && (
             <div
               className="flex justify-center mb-4"
@@ -137,7 +133,6 @@ function App() {
           )}
         </section>
 
-        {/* Visualizador de audio */}
         {isCallActive && (
           <div className="mb-8">
             <div className="bg-white/5 rounded-lg p-4">
@@ -160,7 +155,6 @@ function App() {
                 ))}
               </div>
 
-              {/* Indicador de micrófono */}
               <div className="flex justify-center mt-2">
                 {isMuted ? (
                   <MicOff className="w-5 h-5 text-red-400" />
@@ -174,13 +168,11 @@ function App() {
           </div>
         )}
 
-        {/* Botones de control */}
         <section
           className="flex justify-center items-center space-x-4 mb-6"
           role="group"
           aria-label="Controles de llamada"
         >
-          {/* Botón de mute (solo visible durante llamada) */}
           {isCallActive && (
             <button
               onClick={toggleMute}
@@ -206,7 +198,6 @@ function App() {
             </button>
           )}
 
-          {/* Botón principal de llamada */}
           <button
             onClick={isCallActive ? endCall : startCall}
             className={`
@@ -231,7 +222,6 @@ function App() {
           </button>
         </section>
 
-        {/* Información adicional */}
         <aside
           className="text-center text-white/60 text-xs space-y-1"
           aria-label="Información de estado"
@@ -256,7 +246,6 @@ function App() {
           )}
         </aside>
 
-        {/* Error */}
         {error && (
           <div
             className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg"
@@ -267,7 +256,6 @@ function App() {
           </div>
         )}
 
-        {/* Estado de conexión */}
         <footer className="mt-6 pt-4 border-t border-white/10">
           <div className="text-white/60 text-xs space-y-1">
             <p className="flex items-center justify-between">

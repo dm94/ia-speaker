@@ -74,7 +74,6 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
         </div>
 
         <div className="space-y-6">
-          {/* LM Studio Configuration */}
           <div className="space-y-3">
             <h3 className="text-lg font-semibold text-white">LM Studio</h3>
 
@@ -140,7 +139,6 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
             </div>
           </div>
 
-          {/* Audio Configuration */}
           <div className="space-y-3">
             <h3 className="text-lg font-semibold text-white">
               Detección de Audio
@@ -200,7 +198,6 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
             </div>
           </div>
 
-          {/* Information */}
           <div className="bg-blue-500/10 border border-blue-400/20 rounded-lg p-4">
             <h4 className="text-sm font-semibold text-blue-300 mb-2">
               Información
@@ -214,7 +211,6 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex space-x-3 mt-6">
           <button
             onClick={handleSave}

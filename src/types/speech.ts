@@ -1,4 +1,3 @@
-// Tipos para Web Speech API
 export interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
   resultIndex: number;
@@ -76,10 +75,8 @@ declare global {
   }
 }
 
-// Estados de la aplicación
 export type CallState = 'idle' | 'calling' | 'listening' | 'processing' | 'speaking';
 
-// Configuración de la aplicación
 export interface AppConfig {
   lmStudioUrl: string;
   lmStudioModel: string;
@@ -87,7 +84,6 @@ export interface AppConfig {
   silenceTimeout: number;
 }
 
-// Respuesta de LM Studio
 export interface LMStudioResponse {
   choices: Array<{
     message: {

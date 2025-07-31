@@ -1,7 +1,6 @@
 import { SpeechRecognition } from '@/types/speech';
 import axios from 'axios';
 
-// Servicio para transcripción de audio usando Web Speech API como fallback
 export class SpeechTranscriptionService {
   private recognition: SpeechRecognition | null = null;
   private isListening = false;
@@ -30,7 +29,6 @@ export class SpeechTranscriptionService {
         return;
       }
 
-      // Crear un audio temporal para reproducir y transcribir
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       
@@ -49,12 +47,10 @@ export class SpeechTranscriptionService {
         this.isListening = false;
       };
 
-      // Iniciar transcripción
       try {
         this.recognition.start();
         this.isListening = true;
         
-        // Reproducir audio para que el reconocimiento lo capture
         audio.play();
       } catch (error) {
         reject(error);
@@ -70,7 +66,6 @@ export class SpeechTranscriptionService {
   }
 }
 
-// Servicio para síntesis de voz con sesame/csm-1b
 export class SpeechSynthesisService {
   private sesameApiUrl: string;
 
@@ -80,7 +75,6 @@ export class SpeechSynthesisService {
 
   async synthesizeSpeech(text: string, speaker = 0): Promise<AudioBuffer> {
     try {
-      // Intentar usar sesame/csm-1b primero
       const response = await axios.post(
         `${this.sesameApiUrl}/synthesize`,
         {
@@ -94,7 +88,6 @@ export class SpeechSynthesisService {
         }
       );
 
-      // Convertir respuesta a AudioBuffer
       const audioContext = new AudioContext();
       const audioBuffer = await audioContext.decodeAudioData(response.data);
       return audioBuffer;
@@ -138,7 +131,6 @@ export class SpeechSynthesisService {
   }
 }
 
-// Servicio para comunicación con LM Studio
 export class LMStudioService {
   private baseUrl: string;
   private model: string;
