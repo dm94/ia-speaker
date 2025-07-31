@@ -63,9 +63,6 @@ importers:
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
-      babel-plugin-react-dev-locator:
-        specifier: ^1.0.0
-        version: 1.0.5
       eslint:
         specifier: ^9.25.0
         version: 9.32.0(jiti@1.21.7)
@@ -694,10 +691,6 @@ packages:
 
   axios@1.11.0:
     resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
-
-  babel-plugin-react-dev-locator@1.0.5:
-    resolution: {integrity: sha512-MaOm8wX7KbypWHHKYUwEmRLrhjS2qE/Y/fRE9+hKSlMN/LQVFq2Yl1Pd52iaC1X+diUocOJshQu02ZoO2ukS0w==}
-    engines: {node: '>=12.0.0'}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -2176,16 +2169,6 @@ snapshots:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
-
-  babel-plugin-react-dev-locator@1.0.5:
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/generator': 7.28.0
-      '@babel/parser': 7.28.0
-      '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.2
-    transitivePeerDependencies:
-      - supports-color
 
   balanced-match@1.0.2: {}
 
