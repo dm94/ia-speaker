@@ -127,7 +127,7 @@ export class SpeechSynthesisService {
       source.connect(audioContext.destination);
       
       source.onended = () => resolve();
-      source.onerror = () => reject(new Error('Error al reproducir audio'));
+      source.addEventListener('error', () => reject(new Error('Error al reproducir audio')));
       
       source.start();
     });
