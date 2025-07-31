@@ -210,9 +210,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
         
         if (consecutiveSilenceFramesRef.current >= requiredSilenceFrames && !silenceTimerRef.current) {
           console.log('🔇 Silencio prolongado detectado después de habla, procesando...', { 
-            average, 
-            threshold: config.silenceThreshold, 
-            frames: consecutiveSilenceFramesRef.current 
+            callState
           });
           
           if (callState === 'listening') {
@@ -299,7 +297,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
 
   // Función para mutear/desmutear el micrófono
   const toggleMute = useCallback(() => {
-    if (callState === 'idle') return;
+    if (callState === 'idle') { return;}
     
     setIsMuted(prev => {
       const newMutedState = !prev;

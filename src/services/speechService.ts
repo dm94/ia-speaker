@@ -1,3 +1,4 @@
+import { SpeechRecognition } from '@/types/speech';
 import axios from 'axios';
 
 // Servicio para transcripción de audio usando Web Speech API como fallback
