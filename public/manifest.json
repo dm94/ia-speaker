@@ -1,0 +1,37 @@
+{
+  "name": "IA Speaker - Conversaciones de Voz con IA Local",
+  "short_name": "IA Speaker",
+  "description": "Aplicación web que simula llamadas telefónicas con inteligencia artificial de forma completamente local",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a365d",
+  "theme_color": "#1a365d",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities", "communication"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Iniciar Llamada",
+      "short_name": "Llamar",
+      "description": "Iniciar una nueva conversación con IA",
+      "url": "/?action=call",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

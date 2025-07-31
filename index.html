@@ -1,10 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IA Speaker</title>
+
+    <!-- SEO Meta Tags -->
+    <title>
+      IA Speaker - Conversaciones de Voz con Inteligencia Artificial Local
+    </title>
+    <meta
+      name="description"
+      content="Aplicación web que simula llamadas telefónicas con IA de forma completamente local. Conversaciones naturales por voz con privacidad total y sin transmisión de datos externos."
+    />
+    <meta
+      name="keywords"
+      content="inteligencia artificial, IA, conversación por voz, llamadas IA, asistente virtual local, speech synthesis, LM Studio, privacidad, AI local"
+    />
+    <meta name="author" content="IA Speaker Team" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://ia-speaker.vercel.app" />
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="IA Speaker - Conversaciones de Voz con IA Local"
+    />
+    <meta
+      property="og:description"
+      content="Simula llamadas telefónicas con inteligencia artificial de forma completamente local. Privacidad total y conversaciones naturales por voz."
+    />
+    <meta property="og:url" content="https://ia-speaker.vercel.app" />
+    <meta property="og:site_name" content="IA Speaker" />
+    <meta
+      property="og:image"
+      content="https://ia-speaker.vercel.app/og-image.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="IA Speaker - Interfaz de conversación por voz con IA"
+    />
+    <meta property="og:locale" content="es_ES" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="IA Speaker - Conversaciones de Voz con IA Local"
+    />
+    <meta
+      name="twitter:description"
+      content="Aplicación web para conversaciones naturales por voz con IA de forma completamente local y privada."
+    />
+    <meta
+      name="twitter:image"
+      content="https://ia-speaker.vercel.app/twitter-image.jpg"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="IA Speaker - Interfaz de llamada con IA"
+    />
+
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#1a365d" />
+    <meta name="msapplication-TileColor" content="#1a365d" />
+    <meta name="application-name" content="IA Speaker" />
+    <meta name="apple-mobile-web-app-title" content="IA Speaker" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "IA Speaker",
+        "description": "Aplicación web que simula llamadas telefónicas con inteligencia artificial de forma completamente local",
+        "url": "https://ia-speaker.vercel.app",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "IA Speaker Team"
+        },
+        "featureList": [
+          "Conversaciones por voz con IA",
+          "Procesamiento local",
+          "Privacidad total",
+          "Interfaz de llamada telefónica",
+          "Síntesis de voz",
+          "Detección automática de silencio"
+        ]
+      }
+    </script>
     <script type="module">
       if (import.meta.hot?.on) {
         import.meta.hot.on("vite:error", (error) => {

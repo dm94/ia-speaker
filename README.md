@@ -11,6 +11,9 @@ A React web application that simulates a phone call with artificial intelligence
 - 📱 **Responsive**: Optimized design for mobile and desktop
 - ⚡ **Automatic Detection**: Automatic processing when silence is detected
 - ⚙️ **Visual Configuration**: Integrated configuration panel
+- 🔍 **SEO Optimized**: Complete SEO implementation with meta tags, structured data, and accessibility
+- ♿ **Accessibility**: WCAG compliant with ARIA labels and semantic HTML
+- 🚀 **PWA Ready**: Progressive Web App capabilities with manifest and service worker support
 
 ## 📋 Prerequisites
 
@@ -172,7 +175,50 @@ src/
 
 This project is under the MIT license. See the `LICENSE` file for more details.
 
-## 🤝 Contributions
+## 🔍 SEO & Performance Optimizations
+
+This application includes comprehensive SEO optimizations:
+
+### Meta Tags & Social Media
+- **Complete meta tags**: title, description, keywords, author
+- **Open Graph tags**: optimized for Facebook, LinkedIn sharing
+- **Twitter Cards**: enhanced Twitter sharing experience
+- **Canonical URLs**: proper URL canonicalization
+- **Language attributes**: Spanish language optimization
+
+### Structured Data
+- **JSON-LD schema**: WebApplication structured data
+- **Rich snippets**: enhanced search results appearance
+- **Feature listings**: detailed application capabilities
+
+### Progressive Web App (PWA)
+- **Web App Manifest**: installable app experience
+- **Theme colors**: consistent branding
+- **App shortcuts**: quick access to main features
+- **Icons**: multiple sizes for different devices
+
+### Accessibility (a11y)
+- **ARIA labels**: comprehensive screen reader support
+- **Semantic HTML**: proper HTML5 semantic elements
+- **Focus management**: keyboard navigation support
+- **Live regions**: dynamic content announcements
+- **Color contrast**: WCAG AA compliant colors
+
+### Performance
+- **Compression**: gzip/deflate for all assets
+- **Caching**: optimized browser caching strategies
+- **Security headers**: XSS protection, content type validation
+- **HTTPS enforcement**: automatic redirect to secure connection
+
+### Files Created for SEO
+- `sitemap.xml`: search engine site structure
+- `robots.txt`: search engine crawling instructions
+- `manifest.json`: PWA configuration
+- `.htaccess`: Apache server optimizations
+- `_redirects`: Netlify routing configuration
+- `_headers`: Netlify security headers
+
+## 🤝 Contributing
 
 Contributions are welcome. Please:
 
