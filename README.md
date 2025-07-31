@@ -1,204 +1,204 @@
 # IA Speaker
 
-Una aplicación web React que simula una llamada telefónica con inteligencia artificial de manera completamente local.
+A React web application that simulates a phone call with artificial intelligence in a completely local manner.
 
-## 🎯 Características
+## 🎯 Features
 
-- 🎙️ **Conversación por voz**: Interfaz de llamada telefónica con grabación continua
-- 🤖 **IA Local**: Integración con LM Studio para generación de texto
-- 🔊 **Síntesis de voz**: Compatible con sesame/csm-1b (fallback a Web Speech API)
-- 🔒 **Privacidad total**: Todo funciona localmente, sin envío de datos externos
-- 📱 **Responsive**: Diseño optimizado para móviles y escritorio
-- ⚡ **Detección automática**: Procesamiento automático cuando detecta silencio
-- ⚙️ **Configuración visual**: Panel de configuración integrado
+- 🎙️ **Voice Conversation**: Phone call interface with continuous recording
+- 🤖 **Local AI**: Integration with LM Studio for text generation
+- 🔊 **Speech Synthesis**: Compatible with sesame/csm-1b (fallback to Web Speech API)
+- 🔒 **Total Privacy**: Everything works locally, no external data transmission
+- 📱 **Responsive**: Optimized design for mobile and desktop
+- ⚡ **Automatic Detection**: Automatic processing when silence is detected
+- ⚙️ **Visual Configuration**: Integrated configuration panel
 
-## 📋 Requisitos Previos
+## 📋 Prerequisites
 
-### Software Necesario
+### Required Software
 
-1. **Node.js** (v18 o superior)
-2. **LM Studio** instalado y configurado
-3. **Navegador moderno** con soporte para Web Audio API
+1. **Node.js** (v18 or higher)
+2. **LM Studio** installed and configured
+3. **Modern browser** with Web Audio API support
 
-### Configuración de LM Studio
+### LM Studio Configuration
 
-1. Descarga e instala [LM Studio](https://lmstudio.ai/)
-2. Descarga un modelo de lenguaje compatible (recomendado: Llama 3.2 1B o similar)
-3. Inicia el servidor local en LM Studio:
-   - Ve a la pestaña "Local Server"
-   - Carga tu modelo preferido
-   - Inicia el servidor en `http://localhost:1234`
+1. Download and install [LM Studio](https://lmstudio.ai/)
+2. Download a compatible language model (recommended: Llama 3.2 1B or similar)
+3. Start the local server in LM Studio:
+   - Go to the "Local Server" tab
+   - Load your preferred model
+   - Start the server on `http://localhost:1234`
 
-### Configuración de Sesame CSM-1B (Opcional)
+### Sesame CSM-1B Configuration (Optional)
 
-> **Nota**: Actualmente la aplicación usa Web Speech API para síntesis. La integración con sesame/csm-1b está preparada para implementación futura.
+> **Note**: Currently the application uses Web Speech API for synthesis. Integration with sesame/csm-1b is prepared for future implementation.
 
-Para usar sesame/csm-1b:
+To use sesame/csm-1b:
 
-1. Clona el repositorio de CSM:
+1. Clone the CSM repository:
    ```bash
    git clone https://github.com/SesameAILabs/csm.git
    cd csm
    ```
 
-2. Instala las dependencias:
+2. Install dependencies:
    ```bash
    python3.10 -m venv .venv
-   source .venv/bin/activate  # En Windows: .venv\Scripts\activate
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    pip install -r requirements.txt
    ```
 
-3. Configura el acceso a los modelos:
+3. Configure model access:
    ```bash
    export NO_TORCH_COMPILE=1
    huggingface-cli login
    ```
 
-## 🛠️ Instalación
+## 🛠️ Installation
 
-1. **Clona el repositorio**:
+1. **Clone the repository**:
    ```bash
    git clone <repository-url>
    cd ia-speaker
    ```
 
-2. **Instala las dependencias**:
+2. **Install dependencies**:
    ```bash
    pnpm install
-   # o
+   # or
    npm install
    ```
 
-3. **Inicia la aplicación**:
+3. **Start the application**:
    ```bash
    pnpm dev
-   # o
+   # or
    npm run dev
    ```
 
-4. **Abre tu navegador** en `http://localhost:5173`
+4. **Open your browser** at `http://localhost:5173`
 
-## ⚙️ Configuración
+## ⚙️ Configuration
 
-### Configuración de la Aplicación
+### Application Configuration
 
-La configuración se encuentra en `src/App.tsx`:
+The configuration is located in `src/App.tsx`:
 
 ```typescript
 const [config] = useState<AppConfig>({
-  lmStudioUrl: 'http://localhost:1234',     // URL de LM Studio
-  lmStudioModel: 'local-model',             // Nombre del modelo
-  silenceThreshold: 10,                     // Umbral de detección de silencio (0-255)
-  silenceTimeout: 2000                      // Tiempo de espera en ms
+  lmStudioUrl: 'http://localhost:1234',     // LM Studio URL
+  lmStudioModel: 'local-model',             // Model name
+  silenceThreshold: 10,                     // Silence detection threshold (0-255)
+  silenceTimeout: 2000                      // Timeout in ms
 });
 ```
 
-### Parámetros Ajustables
+### Adjustable Parameters
 
-- **`silenceThreshold`**: Sensibilidad para detectar silencio (menor = más sensible)
-- **`silenceTimeout`**: Tiempo de espera antes de procesar el audio
-- **`lmStudioUrl`**: URL del servidor de LM Studio
-- **`lmStudioModel`**: Identificador del modelo a usar
+- **`silenceThreshold`**: Sensitivity to detect silence (lower = more sensitive)
+- **`silenceTimeout`**: Wait time before processing audio
+- **`lmStudioUrl`**: LM Studio server URL
+- **`lmStudioModel`**: Model identifier to use
 
-## 🎯 Uso
+## 🎯 Usage
 
-1. **Asegúrate de que LM Studio esté ejecutándose** con un modelo cargado
-2. **Permite el acceso al micrófono** cuando el navegador lo solicite
-3. **Presiona el botón verde** para iniciar la llamada
-4. **Habla naturalmente** - la aplicación detectará automáticamente cuando dejes de hablar
-5. **Escucha la respuesta** de la IA
-6. **Continúa la conversación** - el ciclo se repite automáticamente
-7. **Presiona el botón rojo** para finalizar la llamada
+1. **Make sure LM Studio is running** with a loaded model
+2. **Allow microphone access** when the browser requests it
+3. **Press the green button** to start the call
+4. **Speak naturally** - the application will automatically detect when you stop speaking
+5. **Listen to the AI response**
+6. **Continue the conversation** - the cycle repeats automatically
+7. **Press the red button** to end the call
 
-## 🔧 Desarrollo
+## 🔧 Development
 
-### Estructura del Proyecto
+### Project Structure
 
 ```
 src/
 ├── hooks/
-│   └── useAICall.ts          # Hook principal para manejo de llamadas
+│   └── useAICall.ts          # Main hook for call handling
 ├── types/
-│   └── speech.ts             # Tipos TypeScript para Web Speech API
-├── App.tsx                   # Componente principal
-├── App.css                   # Estilos personalizados
-└── main.tsx                  # Punto de entrada
+│   └── speech.ts             # TypeScript types for Web Speech API
+├── App.tsx                   # Main component
+├── App.css                   # Custom styles
+└── main.tsx                  # Entry point
 ```
 
-### Scripts Disponibles
+### Available Scripts
 
-- `pnpm dev` - Inicia el servidor de desarrollo
-- `pnpm build` - Construye la aplicación para producción
-- `pnpm preview` - Previsualiza la build de producción
-- `pnpm lint` - Ejecuta el linter
+- `pnpm dev` - Start development server
+- `pnpm build` - Build application for production
+- `pnpm preview` - Preview production build
+- `pnpm lint` - Run linter
 
-### Tecnologías Utilizadas
+### Technologies Used
 
-- **React 18** con TypeScript
-- **Vite** como bundler
-- **Tailwind CSS** para estilos
-- **Lucide React** para iconos
-- **RecordRTC** para grabación de audio
-- **Axios** para comunicación HTTP
-- **WaveSurfer.js** para visualización de audio
+- **React 18** with TypeScript
+- **Vite** as bundler
+- **Tailwind CSS** for styling
+- **Lucide React** for icons
+- **RecordRTC** for audio recording
+- **Axios** for HTTP communication
+- **WaveSurfer.js** for audio visualization
 
-## 🚨 Solución de Problemas
+## 🚨 Troubleshooting
 
-### Error de Micrófono
-- Asegúrate de permitir el acceso al micrófono en tu navegador
-- Verifica que no haya otras aplicaciones usando el micrófono
-- Prueba en una pestaña de incógnito para descartar extensiones
+### Microphone Error
+- Make sure to allow microphone access in your browser
+- Verify that no other applications are using the microphone
+- Try in an incognito tab to rule out extensions
 
-### Error de Conexión con LM Studio
-- Verifica que LM Studio esté ejecutándose en `http://localhost:1234`
-- Asegúrate de que el modelo esté cargado y el servidor iniciado
-- Revisa la configuración de CORS en LM Studio si es necesario
+### LM Studio Connection Error
+- Verify that LM Studio is running on `http://localhost:1234`
+- Make sure the model is loaded and the server is started
+- Check CORS configuration in LM Studio if necessary
 
-### Problemas de Audio
-- Verifica que tu navegador soporte Web Audio API
-- Ajusta los parámetros de `silenceThreshold` y `silenceTimeout`
-- Prueba con diferentes niveles de volumen del micrófono
+### Audio Issues
+- Verify that your browser supports Web Audio API
+- Adjust the `silenceThreshold` and `silenceTimeout` parameters
+- Try with different microphone volume levels
 
 ## 🔮 Roadmap
 
-- [ ] Integración completa con sesame/csm-1b
-- [ ] Configuración de parámetros desde la UI
-- [ ] Soporte para múltiples idiomas
-- [ ] Mejoras en la detección de voz
-- [ ] Modo de transcripción en tiempo real
-- [ ] Temas personalizables
+- [ ] Complete integration with sesame/csm-1b
+- [ ] Parameter configuration from UI
+- [ ] Multi-language support
+- [ ] Voice detection improvements
+- [ ] Real-time transcription mode
+- [ ] Customizable themes
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más detalles.
+This project is under the MIT license. See the `LICENSE` file for more details.
 
-## 🤝 Contribuciones
+## 🤝 Contributions
 
-Las contribuciones son bienvenidas. Por favor:
+Contributions are welcome. Please:
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## ⚠️ Consideraciones de Privacidad
+## ⚠️ Privacy Considerations
 
-Esta aplicación está diseñada para funcionar completamente en local:
+This application is designed to work completely locally:
 
-- **No se envían datos a servidores externos**
-- **Todo el procesamiento ocurre en tu máquina**
-- **LM Studio ejecuta modelos localmente**
-- **El audio nunca sale de tu dispositivo** (excepto para procesamiento local)
+- **No data is sent to external servers**
+- **All processing occurs on your machine**
+- **LM Studio runs models locally**
+- **Audio never leaves your device** (except for local processing)
 
-## 📞 Soporte
+## 📞 Support
 
-Si encuentras algún problema o tienes preguntas:
+If you encounter any problems or have questions:
 
-1. Revisa la sección de solución de problemas
-2. Busca en los issues existentes
-3. Crea un nuevo issue con detalles del problema
+1. Check the troubleshooting section
+2. Search existing issues
+3. Create a new issue with problem details
 
 ---
 
-**¡Disfruta conversando con tu IA local! 🎉**
+**Enjoy chatting with your local AI! 🎉**
