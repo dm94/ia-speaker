@@ -26,11 +26,17 @@ export const useAICall = ({ config }: UseAICallProps) => {
   const animationFrameRef = useRef<number | null>(null);
   const speechDetectedRef = useRef(false);
   const consecutiveSilenceFramesRef = useRef(0);
+  const callStateRef = useRef<CallState>('idle');
   
   // Servicios
   const transcriptionService = useRef(new SpeechTranscriptionService());
   const synthesisService = useRef(new SpeechSynthesisService());
   const lmStudioService = useRef(new LMStudioService(config.lmStudioUrl, config.lmStudioModel));
+
+  // Mantener callStateRef sincronizado con callState
+  useEffect(() => {
+    callStateRef.current = callState;
+  }, [callState]);
 
   // Inicializar grabación de audio
   const initializeAudio = useCallback(async () => {
@@ -97,6 +103,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
 
   // Sintetizar y reproducir respuesta de voz
   const synthesizeAndPlaySpeech = useCallback(async (text: string) => {
+    callStateRef.current = 'speaking';
     setCallState('speaking');
     
     try {
@@ -110,11 +117,13 @@ export const useAICall = ({ config }: UseAICallProps) => {
       }
       
       // Continuar conversación
+      callStateRef.current = 'listening';
       setCallState('listening');
       startNewRecording();
       
     } catch (err) {
       setError('Error al sintetizar voz: ' + (err as Error).message);
+      callStateRef.current = 'listening';
       setCallState('listening');
       startNewRecording();
     }
@@ -122,13 +131,15 @@ export const useAICall = ({ config }: UseAICallProps) => {
 
   // Procesar grabación cuando se detecta silencio
   const processRecording = useCallback(async () => {
-    console.log('🎤 Iniciando procesamiento de grabación...', { callState, hasRecorder: !!recorderRef.current, isMuted });
-    if (!recorderRef.current || callState !== 'listening' || isMuted) {
-      console.log('❌ No se puede procesar: sin grabador, estado incorrecto o micrófono muteado', { callState, hasRecorder: !!recorderRef.current, isMuted });
+    const currentCallState = callStateRef.current;
+    console.log('🎤 Iniciando procesamiento de grabación...', { callState: currentCallState, hasRecorder: !!recorderRef.current, isMuted });
+    if (!recorderRef.current || currentCallState !== 'listening' || isMuted) {
+      console.log('❌ No se puede procesar: sin grabador, estado incorrecto o micrófono muteado', { callState: currentCallState, hasRecorder: !!recorderRef.current, isMuted });
       return;
     }
     
     console.log('⚙️ Cambiando estado a processing...');
+    callStateRef.current = 'processing';
     setCallState('processing');
     
     try {
@@ -148,17 +159,20 @@ export const useAICall = ({ config }: UseAICallProps) => {
               await synthesizeAndPlaySpeech(aiResponse);
             } else {
               setError('No se pudo generar respuesta');
+              callStateRef.current = 'listening';
               setCallState('listening');
               startNewRecording();
             }
           } else {
             // Si no hay transcripción, volver a escuchar
+            callStateRef.current = 'listening';
             setCallState('listening');
             startNewRecording();
           }
           
         } catch (err) {
           setError('Error al procesar audio: ' + (err as Error).message);
+          callStateRef.current = 'listening';
           setCallState('listening');
           startNewRecording();
         }
@@ -166,6 +180,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
       
     } catch (err) {
       setError('Error al procesar grabación: ' + (err as Error).message);
+      callStateRef.current = 'listening';
       setCallState('listening');
       startNewRecording();
     }
@@ -209,11 +224,12 @@ export const useAICall = ({ config }: UseAICallProps) => {
         const requiredSilenceFrames = Math.floor(config.silenceTimeout / 50); // ~50ms por frame
         
         if (consecutiveSilenceFramesRef.current >= requiredSilenceFrames && !silenceTimerRef.current) {
+          const currentCallState = callStateRef.current;
           console.log('🔇 Silencio prolongado detectado después de habla, procesando...', { 
-            callState
+            callState: currentCallState
           });
           
-          if (callState === 'listening') {
+          if (currentCallState === 'listening') {
             // Reset para próxima detección
             speechDetectedRef.current = false;
             consecutiveSilenceFramesRef.current = 0;
@@ -232,10 +248,12 @@ export const useAICall = ({ config }: UseAICallProps) => {
     const audioInitialized = await initializeAudio();
     
     if (audioInitialized && recorderRef.current) {
+      callStateRef.current = 'calling';
       setCallState('calling');
       
       // Pequeña pausa antes de empezar a escuchar
       setTimeout(() => {
+        callStateRef.current = 'listening';
         setCallState('listening');
         if (!isMuted) {
           recorderRef.current!.startRecording();
@@ -248,6 +266,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
 
   // Finalizar llamada
   const endCall = useCallback(() => {
+    callStateRef.current = 'idle';
     setCallState('idle');
     setIsRecording(false);
     setAudioLevel(0);
@@ -297,7 +316,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
 
   // Función para mutear/desmutear el micrófono
   const toggleMute = useCallback(() => {
-    if (callState === 'idle') { return;}
+    if (callStateRef.current === 'idle') { return;}
     
     setIsMuted(prev => {
       const newMutedState = !prev;
@@ -319,7 +338,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
         consecutiveSilenceFramesRef.current = 0;
       } else {
         // Desmutear: reiniciar grabación si estamos escuchando
-        if (callState === 'listening' && recorderRef.current && mediaStreamRef.current) {
+        if (callStateRef.current === 'listening' && recorderRef.current && mediaStreamRef.current) {
           recorderRef.current = new RecordRTC(mediaStreamRef.current, {
             type: 'audio',
             mimeType: 'audio/wav',
@@ -334,7 +353,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
       
       return newMutedState;
     });
-  }, [callState, isRecording]);
+  }, [isRecording]);
 
   return {
     callState,
