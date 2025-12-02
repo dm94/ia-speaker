@@ -61,7 +61,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
       <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 max-w-md w-full max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-white">Configuración</h2>
@@ -87,7 +87,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
                 onChange={(e) =>
                   setTempConfig({ ...tempConfig, lmStudioUrl: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
                 placeholder="http://localhost:1234"
               />
             </div>
@@ -105,7 +105,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
                     lmStudioModel: e.target.value,
                   })
                 }
-                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
                 placeholder="local-model"
               />
             </div>

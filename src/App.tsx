@@ -179,7 +179,7 @@ function App() {
               className={`
                 w-16 h-16 rounded-full flex items-center justify-center
                 transition-all duration-300 transform hover:scale-105
-                shadow-lg border-4 focus:outline-none focus:ring-4 focus:ring-white/50
+                shadow-lg border-4 focus:outline-hidden focus:ring-4 focus:ring-white/50
                 ${
                   isMuted
                     ? "bg-red-500 hover:bg-red-600 border-red-400"
@@ -203,7 +203,7 @@ function App() {
             className={`
               w-20 h-20 rounded-full flex items-center justify-center
               transition-all duration-300 transform hover:scale-105
-              shadow-lg border-4 focus:outline-none focus:ring-4 focus:ring-white/50
+              shadow-lg border-4 focus:outline-hidden focus:ring-4 focus:ring-white/50
               ${
                 isCallActive
                   ? "bg-red-500 hover:bg-red-600 border-red-400 animate-pulse"
