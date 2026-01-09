@@ -184,13 +184,13 @@ export const useAICall = ({ config }: UseAICallProps) => {
       setCallState('listening');
       startNewRecording();
     }
-  }, [callState, synthesizeAndPlaySpeech, startNewRecording]);
+  }, [synthesizeAndPlaySpeech, startNewRecording, isMuted]);
 
   // Monitor audio level and improved silence detection
-  const monitorAudioLevel = useCallback(() => {
+  const monitorAudioLevel = useCallback(function checkLevel() {
     if (!analyserRef.current || isMuted) {
       setAudioLevel(0);
-      animationFrameRef.current = requestAnimationFrame(monitorAudioLevel);
+      animationFrameRef.current = requestAnimationFrame(checkLevel);
       return;
     }
     
@@ -236,8 +236,8 @@ export const useAICall = ({ config }: UseAICallProps) => {
       }
     }
     
-    animationFrameRef.current = requestAnimationFrame(monitorAudioLevel);
-  }, [callState, config.silenceThreshold, config.silenceTimeout, processRecording, isMuted]);
+    animationFrameRef.current = requestAnimationFrame(checkLevel);
+  }, [config.silenceThreshold, config.silenceTimeout, processRecording, isMuted]);
 
   // Start call
   const startCall = useCallback(async () => {
@@ -259,7 +259,7 @@ export const useAICall = ({ config }: UseAICallProps) => {
         monitorAudioLevel();
       }, 1000);
     }
-  }, [initializeAudio, monitorAudioLevel]);
+  }, [initializeAudio, monitorAudioLevel, isMuted]);
 
   // End call
   const endCall = useCallback(() => {
