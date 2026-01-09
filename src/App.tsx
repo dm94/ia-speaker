@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Phone, PhoneOff, Mic, MicOff, Activity } from "lucide-react";
 import { useAICall } from "./hooks/useAICall";
 import { useSEO } from "./hooks/useSEO";
@@ -25,7 +25,7 @@ function App() {
     toggleMute,
   } = useAICall({ config });
 
-  const getStateText = () => {
+  const getStateText = useCallback(() => {
     switch (callState) {
       case "idle":
         return "Presiona para iniciar llamada";
@@ -40,10 +40,10 @@ function App() {
       default:
         return "Estado desconocido";
     }
-  };
+  }, [callState]);
 
   // SEO optimization
-  useSEO({
+  const seoData = useMemo(() => ({
     title:
       callState === "idle"
         ? "IA Speaker - Conversaciones de Voz con IA Local"
@@ -69,7 +69,9 @@ function App() {
         priceCurrency: "USD",
       },
     },
-  });
+  }), [callState, getStateText]);
+
+  useSEO(seoData);
 
   const getStateColor = () => {
     switch (callState) {
@@ -144,11 +146,11 @@ function App() {
                     style={{
                       width: "3px",
                       height: isRecording
-                        ? `${Math.max(
-                            4,
-                            (audioLevel / 255) * 60 + Math.random() * 10
-                          )}px`
-                        : "4px",
+                            ? `${Math.max(
+                                4,
+                                (audioLevel / 255) * 60 + ((i * 7) % 10)
+                              )}px`
+                            : "4px",
                       opacity: isRecording ? 0.8 : 0.3,
                     }}
                   />
